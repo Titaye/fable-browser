@@ -657,11 +657,11 @@ type RTCRtpSender =
 
     abstract setParameters: parameters:RTCRtpSendParameters -> JS.Promise<unit>
     abstract getParameters: unit -> RTCRtpSendParameters
-    abstract replaceTrack: withTrack:#MediaStreamTrack option -> JS.Promise<unit>
+    abstract replaceTrack: withTrack:MediaStreamTrack option -> JS.Promise<unit>
 
     [<Emit("$0.setStreams($1...)")>]
     abstract setStreams: [<ParamArray>] streams:MediaStream [] -> unit
-    abstract getStates: unit -> JS.Promise<RTCStatsReport>
+    abstract getStats: unit -> JS.Promise<RTCStatsReport>
 
 type RTCRtpSenderType =
     [<Emit("RTCRtpSender.getCapabilities($1)")>]
@@ -845,6 +845,7 @@ type RTCPeerConnection =
 
     abstract removeTrack: sender:RTCRtpSender -> unit
 
+    abstract getStats: unit -> JS.Promise<RTCStatsReport>
     abstract addTransceiver: track:MediaStreamTrack * ?init: RTCRtpTransceiverInit -> RTCRtpTransceiver
     abstract addTransceiver: trackKind:TrackKind -> RTCRtpTransceiver
     abstract ontrack: (RTCTrackEvent->unit) with get,set

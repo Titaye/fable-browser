@@ -1,3 +1,7 @@
+### 1.1.0
+
+* Update deviceId constraint in MediaTrackConstraintSet
+
 ### 1.0.0
 
 * First stable release

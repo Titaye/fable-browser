@@ -48,11 +48,16 @@ type ConstrainOrRange<'T> =
 type ConstrainOrRangeULong = ConstrainOrRange<uint32>
 type ConstrainOrRangeDouble = ConstrainOrRange<float>
 
-type ConstrainULong = Constrain<uint32>
-type ConstrainDouble = Constrain<float>
-type ConstrainString = Constrain<string>
-type ConstrainBoolean = Constrain<bool>
 
+[<Erase>]
+type ConstrainOrValue<'T> =
+    | Value of 'T
+    | Constrain of Constrain<'T>
+
+type ConstrainULong = ConstrainOrValue<uint32>
+type ConstrainDouble = ConstrainOrValue<float>
+type ConstrainBoolean = ConstrainOrValue<bool>
+type ConstrainString = ConstrainOrValue<bool>
 
 type MediaTrackConstraintSet =
     abstract deviceId: ConstrainString option with get, set
@@ -62,7 +67,19 @@ type MediaTrackSettings =
     abstract deviceId: string
     abstract groupId: string
 
+[<Obsolete("Naming changed, pleas use AudioConstraints")>]
 type AudioConstraint =
+    inherit MediaTrackConstraintSet
+    abstract autoGainControl: ConstrainBoolean option with get, set
+    abstract channelCount: ConstrainOrRangeULong option with get, set
+    abstract echoCancellation: ConstrainBoolean option with get, set
+    abstract latency: ConstrainOrRangeDouble option with get, set
+    abstract noiseSuppression: ConstrainBoolean option with get, set
+    abstract sampleRate: ConstrainOrRangeULong option with get, set
+    abstract sampleSize: ConstrainOrRangeULong option with get, set
+    abstract volume: ConstrainOrRangeDouble option with get, set
+
+type AudioConstraints =
     inherit MediaTrackConstraintSet
     abstract autoGainControl: ConstrainBoolean option with get, set
     abstract channelCount: ConstrainOrRangeULong option with get, set
@@ -208,20 +225,18 @@ type VideoConstraints =
     inherit MediaTrackConstraintSet
     inherit ImageMediaTrackConstraintSet
 
-// [<Erase>]
-// type VideoMediaStreamConstraint =
-// | Bool of bool
-// | Camera of VideoConstraints
-
-// [<Erase>]
-// type AudioMediaStreamConstraint =
-// | Bool of bool
-// | Constraint of AudioMediaStreamConstraint
-
-
 type StreamContraints =
     abstract video:obj with get, set
     abstract audio:obj with get, set
+
+[<Erase>]
+type StreamConstraintOrBool<'T> =
+    | Bool of bool
+    | Constraint of 'T
+
+type MediaStreamContraints =
+    abstract video:StreamConstraintOrBool<VideoConstraints> with get, set
+    abstract audio:StreamConstraintOrBool<AudioConstraints> with get, set
 
 [<StringEnum>]
 type TrackKind =
@@ -314,6 +329,7 @@ type MediaDevices =
     inherit EventTarget
     abstract getSupportedConstraints: unit -> MediaTrackSupportedConstraints
     abstract getUserMedia: constraints: StreamContraints -> JS.Promise<MediaStream>
+    abstract getUserMedia: constraints: MediaStre -> JS.Promise<MediaStream>
     abstract getDisplayMedia: constraints: SharedScreenMediaTrackConstraintSet option -> JS.Promise<MediaStream>
     abstract enumerateDevices: unit -> JS.Promise<ResizeArray<MediaDeviceInfo>>
     abstract ondevicechange: (Event->unit) with get, set
